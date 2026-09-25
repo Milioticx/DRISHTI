@@ -28,7 +28,15 @@ window.feed=feed;window.ingest=ingest;
 const fromRow=r=>({id:parseInt(String(r.node_id).replace(/\D/g,''))||0,seq:r.seq_num??null,water:Math.round(r.water_height_m*1000),surge:Math.round(r.water_rate_cm_min/6),gas:Math.round(r.gas_ppm),grate:Math.round(r.gas_rate_ppm_s),temp:Math.round(r.fire_temp_c),vib:Math.round(r.vibration_rms),cls:Math.min(r.ai_class|0,3),ts:r.timestamp});
 function post(o){if(!D.onSrv)return;fetch(D.API+'/api/telemetry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({node_id:pad(o.id),gas_ppm:o.gas,gas_rate_ppm_s:o.grate,water_height_m:o.water/1000,water_rate_cm_min:o.surge*6,fire_temp_c:o.temp,vibration_rms:o.vib,ai_class:o.cls})}).catch(()=>{})}
 async function seed(){if(!D.onSrv)return;try{const L=await(await fetch(D.API+'/api/telemetry/latest')).json();for(const r of L){const h=await(await fetch(`${D.API}/api/telemetry/history?node_id=${r.node_id}&limit=300`)).json();h.forEach(x=>ingest(fromRow(x)))}D.good=0;document.dispatchEvent(new CustomEvent('drishti:seeded'))}catch{}}
-async function historyFor(id,limit=300){if(!D.onSrv)return D.N[id]?D.N[id].h:[];try{return(await(await fetch(`${D.API}/api/telemetry/history?node_id=${pad(id)}&limit=${limit}`)).json()).map(fromRow)}catch{return D.N[id]?D.N[id].h:[]}}
+async function historyFor(id,limit=300){
+// Prefer the live in-memory buffer (works for Demo mode and USB, neither of which
+// necessarily has every packet saved server-side). Only hit the DB when we don't
+// have a decent local buffer yet, e.g. right after opening the page.
+const local=D.N[id]?D.N[id].h:[];
+if(local.length>=Math.min(20,limit))return local.slice(-limit);
+if(!D.onSrv)return local;
+try{const rows=(await(await fetch(`${D.API}/api/telemetry/history?node_id=${pad(id)}&limit=${limit}`)).json()).map(fromRow);
+return rows.length>local.length?rows:local;}catch{return local}}
 function connectWS(){if(!D.onSrv)return;const s=new WebSocket((location.protocol=='https:'?'wss':'ws')+'://'+location.host+'/ws');
 s.onopen=()=>{D.be=true;document.dispatchEvent(new Event('drishti:status'))};
 s.onmessage=e=>{try{const m=JSON.parse(e.data);if(m.type=='telemetry'&&!D.port&&!D.demo)ingest(fromRow(m.data))}catch{}};
