@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>DRISHTI | Command Center</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body data-page="overview">
+
+  <div class="app-shell">
+
+    <!-- =========================================================
+         SIDEBAR
+    ========================================================== -->
+    <aside class="sidebar">
+
+      <div class="brand">
+        <div class="brand-mark">D</div>
+
+        <div>
+          <strong>DRISHTI</strong>
+          <span>Disaster Intelligence</span>
+        </div>
+      </div>
+
+      <div class="side-label">COMMAND</div>
+
+      <nav>
+        <a class="nav-link active" href="index.html">
+          <span>⌂</span>
+          Overview
+        </a>
+
+        <a class="nav-link" href="nodes.html">
+          <span>◉</span>
+          Live Nodes
+        </a>
+
+        <a class="nav-link" href="analytics.html">
+          <span>◌</span>
+          Analytics
+        </a>
+      </nav>
+
+      <div class="side-label">SYSTEM</div>
+
+      <nav>
+        <a class="nav-link" href="#alerts">
+          <span>⚠</span>
+          Alerts
+          <b id="sideAlertCount" class="nav-badge">0</b>
+        </a>
+
+        <a class="nav-link" href="#settings">
+          <span>⚙</span>
+          Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-bottom">
+
+        <div class="system-pill">
+          <span class="pulse"></span>
+
+          <div>
+            <b>Mesh online</b>
+            <small>LoRaWAN / 3 nodes</small>
+          </div>
+        </div>
+
+        <small class="version">
+          DRISHTI v1.0 • SIH 2026
+        </small>
+
+      </div>
+
+    </aside>
+
+
+    <!-- =========================================================
+         MAIN COMMAND CENTER
+    ========================================================== -->
+    <main class="main">
+
+      <!-- TOP BAR -->
+      <header class="topbar">
+
+        <div>
+          <div class="eyebrow">
+            SMART INDIA HACKATHON 2026 • DISASTER MANAGEMENT
+          </div>
+
+          <h1>Environmental Command Center</h1>
+        </div>
+
+        <div class="top-actions">
+
+          <div class="live">
+            <span class="pulse"></span>
+            LIVE
+          </div>
+
+          <div id="clock" class="clock">
+            --:--:--
+          </div>
+
+          <button class="icon-btn" type="button" aria-label="Search">
+            ⌕
+          </button>
+
+          <div class="avatar">
+            DI
+          </div>
+
+        </div>
+
+      </header>
+
+
+      <!-- =========================================================
+           HERO / NETWORK OVERVIEW
+      ========================================================== -->
+      <section class="hero-row">
+
+        <div class="hero-copy">
+
+          <span class="status-chip good">
+            ● All critical nodes connected
+          </span>
+
+          <h2>
+            See the hazard before it becomes an emergency.
+          </h2>
+
+          <p>
+            Real-time edge telemetry from three distributed sensing nodes.
+            AI inference runs locally, while the gateway converts environmental
+            signals into actionable hazard alerts.
+          </p>
+
+          <div class="hero-meta">
+
+            <span>
+              Last packet
+              <b id="lastPacket">just now</b>
+            </span>
+
+            <span>
+              Mesh latency
+              <b id="latency">--</b>
+            </span>
+
+            <span>
+              Cloud dependency
+              <b>0</b>
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- NETWORK VISUAL -->
+        <div class="network-visual">
+
+          <div class="network-grid"></div>
+
+          <div class="node-orbit orbit-a"></div>
+          <div class="node-orbit orbit-b"></div>
+
+          <div class="hub">
+            <span>AI</span>
+            <small>GATEWAY</small>
+          </div>
+
+
+          <div class="map-node n1">
+            <i></i>
+            <b>N-01</b>
+            <small>North</small>
+          </div>
+
+          <div class="map-node n2">
+            <i></i>
+            <b>N-02</b>
+            <small>Central</small>
+          </div>
+
+          <div class="map-node n3">
+            <i></i>
+            <b>N-03</b>
+            <small>South</small>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =========================================================
+           LIVE TELEMETRY HEADER
+      ========================================================== -->
+      <section class="section-head">
+
+        <div>
+          <h3>Live hazard telemetry</h3>
+
+          <p>
+            Aggregated readings across all three sensing zones
+          </p>
+        </div>
+
+        <div class="range">
+
+          <button class="range-btn active" type="button">
+            Live
+          </button>
+
+          <button class="range-btn" type="button">
+            1H
+          </button>
+
+          <button class="range-btn" type="button">
+            24H
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <!-- =========================================================
+           METRIC CARDS
+      ========================================================== -->
+      <section class="metric-grid">
+
+
+        <!-- GAS -->
+        <article class="metric-card gas">
+
+          <div class="metric-top">
+
+            <div>
+              <span class="metric-icon">◉</span>
+              <span>Gas concentration</span>
+            </div>
+
+            <span class="trend up">
+              LIVE
+            </span>
+
+          </div>
+
+          <div class="metric-value">
+
+            <strong id="gasValue">--</strong>
+
+            <span>ppm</span>
+
+          </div>
+
+          <div class="metric-foot">
+
+            <span>
+              Highest:
+              <b id="gasNode">--</b>
+            </span>
+
+            <span class="state warn">
+              Monitoring
+            </span>
+
+          </div>
+
+          <div
+            class="spark"
+            id="gasSpark"
+          ></div>
+
+        </article>
+
+
+        <!-- WATER -->
+        <article class="metric-card water">
+
+          <div class="metric-top">
+
+            <div>
+              <span class="metric-icon">≈</span>
+              <span>Flood water height</span>
+            </div>
+
+            <span class="trend up">
+              LIVE
+            </span>
+
+          </div>
+
+          <div class="metric-value">
+
+            <strong id="waterValue">--</strong>
+
+            <span>m</span>
+
+          </div>
+
+          <div class="metric-foot">
+
+            <span>
+              Rate:
+              <b id="waterRate">--</b>
+            </span>
+
+            <span class="state danger">
+              Monitoring
+            </span>
+
+          </div>
+
+          <div
+            class="spark"
+            id="waterSpark"
+          ></div>
+
+        </article>
+
+
+        <!-- TEMPERATURE -->
+        <article class="metric-card fire">
+
+          <div class="metric-top">
+
+            <div>
+              <span class="metric-icon">△</span>
+              <span>Fire temperature</span>
+            </div>
+
+            <span class="trend up">
+              LIVE
+            </span>
+
+          </div>
+
+          <div class="metric-value">
+
+            <strong id="tempValue">--</strong>
+
+            <span>°C</span>
+
+          </div>
+
+          <div class="metric-foot">
+
+            <span>
+              Rate:
+              <b id="tempRate">--</b>
+            </span>
+
+            <span class="state warn">
+              Monitoring
+            </span>
+
+          </div>
+
+          <div
+            class="spark"
+            id="tempSpark"
+          ></div>
+
+        </article>
+
+
+        <!-- EDGE AI -->
+        <article class="metric-card nodes">
+
+          <div class="metric-top">
+
+            <div>
+              <span class="metric-icon">⌁</span>
+              <span>Edge AI state</span>
+            </div>
+
+            <span class="trend flat">
+              TinyML
+            </span>
+
+          </div>
+
+          <div class="metric-value">
+
+            <strong id="aiState">
+              Monitoring
+            </strong>
+
+          </div>
+
+          <div class="metric-foot">
+
+            <span>
+              Model output:
+              <b id="aiNode">--</b>
+            </span>
+
+            <span class="state danger">
+              LIVE
+            </span>
+
+          </div>
+
+          <div class="battery">
+            <i id="batteryBar"></i>
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <!-- =========================================================
+           EDGE AI MODEL
+      ========================================================== -->
+      <section class="model-strip">
+
+        <div>
+
+          <span class="model-kicker">
+            ON-DEVICE MODEL
+          </span>
+
+          <h3>
+            hazard_tree • 4 classes • 6 sensor features
+          </h3>
+
+          <p>
+            Edge AI classification is performed from water level,
+            water surge rate, gas concentration, gas rate, temperature,
+            and vibration signals.
+          </p>
+
+        </div>
+
+        <div class="model-classes">
+
+          <span>
+            0 NORMAL
+          </span>
+
+          <span>
+            1 FLASH_FLOOD
+          </span>
+
+          <span>
+            2 WILDFIRE
+          </span>
+
+          <span>
+            3 GAS_LEAK
+          </span>
+
+        </div>
+
+      </section>
+
+
+      <!-- =========================================================
+           CHART + ALERTS
+      ========================================================== -->
+      <section class="content-grid">
+
+
+        <!-- TREND CHART -->
+        <article class="panel chart-panel">
+
+          <div class="panel-head">
+
+            <div>
+
+              <h3>
+                Hazard trend
+              </h3>
+
+              <p>
+                Latest live telemetry samples
+              </p>
+
+            </div>
+
+            <select id="chartMetric">
+
+              <option value="water">
+                Water height
+              </option>
+
+              <option value="gas">
+                Gas ppm
+              </option>
+
+              <option value="temp">
+                Temperature
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div class="chart-wrap">
+
+            <svg
+              id="trendChart"
+              viewBox="0 0 760 280"
+              preserveAspectRatio="none"
+              aria-label="Live environmental trend chart"
+            ></svg>
+
+            <div class="chart-legend">
+
+              <span>
+
+                <i class="dot water-dot"></i>
+
+                <b id="chartLegend">
+                  Water height
+                </b>
+
+              </span>
+
+              <span>
+                Auto-refresh: 2 sec
+              </span>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <!-- ALERT PANEL -->
+        <article
+          class="panel alerts-panel"
+          id="alerts"
+        >
+
+          <div class="panel-head">
+
+            <div>
+
+              <h3>
+                Priority alerts
+              </h3>
+
+              <p>
+                AI classification + sensor signals
+              </p>
+
+            </div>
+
+            <span
+              class="alert-count"
+              id="alertCount"
+            >
+              0 active
+            </span>
+
+          </div>
+
+
+          <div
+            id="alertsList"
+            class="alerts-list"
+          ></div>
+
+
+          <a
+            class="panel-link"
+            href="analytics.html"
+          >
+            Open incident timeline →
+          </a>
+
+        </article>
+
+      </section>
+
+
+      <!-- =========================================================
+           NODE STATUS
+      ========================================================== -->
+      <section class="section-head node-head">
+
+        <div>
+
+          <h3>
+            Node status
+          </h3>
+
+          <p>
+            Distributed nodes carrying the complete multi-sensor stack
+          </p>
+
+        </div>
+
+        <a
+          class="text-link"
+          href="nodes.html"
+        >
+          View all nodes →
+        </a>
+
+      </section>
+
+
+      <section
+        class="node-grid"
+        id="nodeGrid"
+      ></section>
+
+
+      <!-- =========================================================
+           FOOTER
+      ========================================================== -->
+      <footer>
+        DRISHTI • Edge AI disaster recognition • Prototype dashboard for SIH 2026
+      </footer>
+
+    </main>
+
+  </div>
+
+
+  <!-- APPLICATION LOGIC -->
+  <script src="app.js"></script>
+
+</body>
+</html>

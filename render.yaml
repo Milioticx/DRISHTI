@@ -1,0 +1,22 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Deploy: render.com -> New -> Blueprint -> point at this repo.
+# DRISHTI_UART_PORT is intentionally left unset: the hosted backend has no
+# physical serial port, so hardware data reaches it only via the browser's
+# Web Serial "Connect Gateway (USB)" button (Path B), which POSTs decoded
+# frames to /api/telemetry from your laptop.
+services:
+  - type: web
+    name: drishti-dashboard
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+    # Optional: uncomment to persist drishti.db across restarts/redeploys
+    # (requires a paid instance type; free tier cannot attach a disk).
+    # disk:
+    #   name: drishti-data
+    #   mountPath: /opt/render/project/src/data
+    #   sizeGB: 1

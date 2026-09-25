@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>DRISHTI | Environmental Analytics</title>
+
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  >
+</head>
+
+<body>
+
+<div class="app-shell">
+
+  <!-- =====================================================
+       SIDEBAR
+       ===================================================== -->
+
+  <aside class="sidebar">
+
+    <div class="brand">
+
+      <div class="brand-mark">
+        D
+      </div>
+
+      <div>
+        <strong>DRISHTI</strong>
+        <span>Disaster Intelligence</span>
+      </div>
+
+    </div>
+
+
+    <div class="side-label">
+      COMMAND
+    </div>
+
+
+    <nav>
+
+      <a
+        href="index.html"
+        class="nav-link"
+      >
+        <span>◈</span>
+        Overview
+      </a>
+
+
+      <a
+        href="nodes.html"
+        class="nav-link"
+      >
+        <span>⌁</span>
+        Live Nodes
+      </a>
+
+
+      <a
+        href="analytics.html"
+        class="nav-link active"
+      >
+        <span>◫</span>
+        Analytics
+      </a>
+
+    </nav>
+
+
+    <div class="side-label">
+      SYSTEM
+    </div>
+
+
+    <div class="sidebar-bottom">
+
+      <div class="system-pill">
+
+        <span class="pulse"></span>
+
+        <div>
+
+          <b id="backendStatus">
+            BACKEND ONLINE
+          </b>
+
+          <small>
+            Real-time telemetry
+          </small>
+
+        </div>
+
+      </div>
+
+
+      <div class="version">
+        NETWORK · LoRaWAN / 3 NODES
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =====================================================
+       MAIN CONTENT
+       ===================================================== -->
+
+  <main class="main">
+
+
+    <!-- ===================================================
+         TOP BAR
+         =================================================== -->
+
+    <header class="topbar">
+
+      <div>
+
+        <div class="eyebrow">
+          DRISHTI / ENVIRONMENTAL ANALYTICS
+        </div>
+
+        <h1>
+          Environmental Analytics
+        </h1>
+
+      </div>
+
+
+      <div class="top-actions">
+
+        <div class="live">
+
+          <span class="pulse"></span>
+
+          LIVE TELEMETRY
+
+        </div>
+
+
+        <div
+          class="clock"
+          id="clock"
+        >
+          --:--:--
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- ===================================================
+         RISK BANNER
+         =================================================== -->
+
+    <section class="risk-banner">
+
+
+      <!-- Network score -->
+
+      <div class="risk-score">
+
+        <span>
+          NETWORK RISK
+        </span>
+
+        <strong id="riskScore">
+          0
+        </strong>
+
+        <small>
+          / 100
+        </small>
+
+      </div>
+
+
+      <!-- Risk explanation -->
+
+      <div class="risk-copy">
+
+        <span class="status-chip warn">
+          LIVE RISK ANALYSIS
+        </span>
+
+        <h2>
+          Waiting for live telemetry.
+        </h2>
+
+        <p>
+          Environmental risk analysis will begin
+          when field nodes report telemetry.
+        </p>
+
+      </div>
+
+
+      <!-- Category bars -->
+
+      <div class="risk-bars">
+
+
+        <div>
+
+          <span>
+            FLOOD
+          </span>
+
+          <i>
+            <b
+              id="riskFlood"
+              style="width:0%"
+            ></b>
+          </i>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            FIRE
+          </span>
+
+          <i>
+            <b
+              id="riskFire"
+              style="width:0%"
+            ></b>
+          </i>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            GAS
+          </span>
+
+          <i>
+            <b
+              id="riskGas"
+              style="width:0%"
+            ></b>
+          </i>
+
+        </div>
+
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         SIGNAL MONITOR + RESPONSE PIPELINE
+         =================================================== -->
+
+    <section class="analytics-grid">
+
+
+      <!-- =================================================
+           TREND CHART
+           ================================================= -->
+
+      <article class="panel">
+
+
+        <div class="panel-head">
+
+          <div>
+
+            <h3>
+              Rate-of-Change Monitor
+            </h3>
+
+            <p>
+              Live environmental telemetry
+            </p>
+
+          </div>
+
+
+          <select id="chartMetric">
+
+            <option value="water">
+              Water height
+            </option>
+
+            <option value="gas">
+              Gas ppm
+            </option>
+
+            <option value="temp">
+              Temperature
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="big-chart">
+
+          <svg
+            id="trendChart"
+            viewBox="0 0 900 300"
+            preserveAspectRatio="none"
+          ></svg>
+
+        </div>
+
+
+        <div class="chart-legend">
+
+          <span>
+            <i class="dot water-dot"></i>
+
+            <b id="chartLegend">
+              Water height
+            </b>
+          </span>
+
+
+          <span>
+            LIVE · AUTO REFRESH
+          </span>
+
+        </div>
+
+      </article>
+
+
+      <!-- =================================================
+           RESPONSE PIPELINE
+           ================================================= -->
+
+      <article class="panel">
+
+        <div class="panel-head">
+
+          <div>
+
+            <h3>
+              Response Pipeline
+            </h3>
+
+            <p>
+              Sense → Detect → Alert → Respond
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="timeline">
+
+
+          <div class="step active">
+
+            <span>
+              01
+            </span>
+
+            <div>
+
+              <b>
+                Sensor Acquisition
+              </b>
+
+              <small>
+                Water · Gas · Temperature · Vibration
+              </small>
+
+            </div>
+
+          </div>
+
+
+          <div class="step">
+
+            <span>
+              02
+            </span>
+
+            <div>
+
+              <b>
+                Signal Processing
+              </b>
+
+              <small>
+                Filtering · Rate-of-change · Features
+              </small>
+
+            </div>
+
+          </div>
+
+
+          <div class="step">
+
+            <span>
+              03
+            </span>
+
+            <div>
+
+              <b>
+                Edge AI Classification
+              </b>
+
+              <small>
+                TinyML decision-tree hazard inference
+              </small>
+
+            </div>
+
+          </div>
+
+
+          <div class="step">
+
+            <span>
+              04
+            </span>
+
+            <div>
+
+              <b>
+                Alert Generation
+              </b>
+
+              <small>
+                Hazard classification and risk intelligence
+              </small>
+
+            </div>
+
+          </div>
+
+
+          <div class="step">
+
+            <span>
+              05
+            </span>
+
+            <div>
+
+              <b>
+                Emergency Response
+              </b>
+
+              <small>
+                Action-ready situational awareness
+              </small>
+
+            </div>
+
+          </div>
+
+
+        </div>
+
+      </article>
+
+
+    </section>
+
+
+    <!-- ===================================================
+         INCIDENT TIMELINE
+         =================================================== -->
+
+    <section class="panel incident-panel">
+
+
+      <div class="panel-head">
+
+        <div>
+
+          <h3>
+            Incident Timeline
+          </h3>
+
+          <p>
+            Current node classifications and environmental signals
+          </p>
+
+        </div>
+
+
+        <span
+          class="status-chip good"
+        >
+          ● LIVE
+        </span>
+
+      </div>
+
+
+      <div
+        class="timeline"
+        id="incidentTimeline"
+      >
+
+        <div class="incident-item">
+
+          <span class="incident-time">
+            --:--:--
+          </span>
+
+          <span class="incident-dot"></span>
+
+          <div>
+
+            <b>
+              Waiting for telemetry
+            </b>
+
+            <small>
+              Field nodes have not reported data yet.
+            </small>
+
+          </div>
+
+          <span class="incident-tag">
+            SYSTEM
+          </span>
+
+        </div>
+
+      </div>
+
+
+    </section>
+
+
+    <!-- ===================================================
+         NODE ANALYTICS
+         =================================================== -->
+
+    <div class="section-head">
+
+      <div>
+
+        <h3>
+          Node Analytics
+        </h3>
+
+        <p>
+          Distributed multi-sensor field network
+        </p>
+
+      </div>
+
+
+      <span class="status-chip good">
+        3 NODES
+      </span>
+
+    </div>
+
+
+    <section
+      class="node-grid"
+      id="nodeGrid"
+    >
+
+      <!-- app.js populates this -->
+
+    </section>
+
+
+    <!-- ===================================================
+         MODEL INFORMATION
+         =================================================== -->
+
+    <section class="model-strip">
+
+
+      <div>
+
+        <div class="model-kicker">
+          EDGE AI
+        </div>
+
+        <h3>
+          TinyML Hazard Classification
+        </h3>
+
+        <p>
+          Lightweight decision-tree inference executed
+          at the field sensing layer.
+        </p>
+
+      </div>
+
+
+      <div class="model-classes">
+
+        <span>
+          0 NORMAL
+        </span>
+
+        <span>
+          1 FLASH_FLOOD
+        </span>
+
+        <span>
+          2 WILDFIRE
+        </span>
+
+        <span>
+          3 GAS_LEAK
+        </span>
+
+      </div>
+
+
+    </section>
+
+
+    <!-- ===================================================
+         FOOTER
+         =================================================== -->
+
+    <footer>
+      DRISHTI • Disaster Recognition with Intelligent
+      Sensing & Hazard Telemetry for India • SIH 2026
+    </footer>
+
+
+  </main>
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DRISHTI · Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<style>.big2{grid-column:span 12}.big2 canvas{width:100%;height:220px;display:block}
+.half{grid-column:span 6}.half canvas{width:100%;height:180px;display:block}
+.bars{display:flex;align-items:flex-end;gap:14px;height:150px;padding-top:10px}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.bar i{width:60%;background:linear-gradient(var(--hz),color-mix(in srgb,var(--hz) 40%,transparent));border-radius:3px 3px 0 0;transition:height .6s ease}
+.stat{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:8px}
+.stat div b{display:block;font:600 22px 'Chakra Petch';color:var(--hz)}.stat div span{color:var(--mu);font-size:11px}
+.tl{grid-column:span 12;max-height:320px;overflow:auto}
+select#ns{background:var(--p2);color:var(--tx);border:1px solid var(--ln);padding:5px 10px;border-radius:4px;font-family:inherit}
+</style></head>
+<body><header><div class="logo">DR<i>I</i>SHTI</div><div class="sub">Analytics · historical trends &amp; incident response</div>
+<nav class="nav"><a href="index.html">Overview</a><a href="nodes.html">Node Status</a><a href="analytics.html" class="on">Analytics</a></nav>
+<span class="spacer"></span><span id="st"><i class="dot"></i>OFFLINE</span>
+<button id="cx" onclick="toggleSerial(this)">⚡ Connect Gateway (USB)</button><button id="dm" onclick="dmToggle()">▶ Demo mode</button>
+<select id="sc" style="display:none" onchange="D.scen=+this.value"><option value="0">Scenario: Normal</option><option value="1">Flash flood</option><option value="2">Wildfire</option><option value="3">Gas leak</option></select></header>
+<main>
+<section class="c big2"><h2>Trend · node <select id="ns" onchange="D.sel=+this.value;load()"></select></h2><div class="stat" id="stat"></div><canvas id="tc"></canvas></section>
+<section class="c half"><h2>Peak readings by node</h2><div class="bars" id="bars"></div></section>
+<section class="c half"><h2>Hazard classification mix</h2><canvas id="pie" width="300" height="180"></canvas></section>
+<section class="c tl"><h2>Incident timeline</h2><div id="tl"><div class="empty">No incidents logged yet</div></div></section>
+</main>
+<script src="core.js"></script>
+<script>
+function dmToggle(){D.demo?stopDemo():startDemo();$('dm').classList.toggle('on',!!D.demo);$('sc').style.display=D.demo?'':'none'}
+function statusUI(){const s=statusInfo();$('st').innerHTML=`<i class="dot ${s.live||s.be?'live':''}"></i>${s.label}`}
+document.addEventListener('drishti:status',statusUI);
+function fillSel(){const sel=$('ns'),ids=Object.keys(D.N).map(Number).sort((a,b)=>a-b);if(!ids.length)return;
+if(sel.options.length!==ids.length)sel.innerHTML=ids.map(id=>`<option value="${id}">NODE ${String(id).padStart(2,'0')}</option>`).join('');
+if(D.sel===null)D.sel=ids[0];sel.value=D.sel}
+async function load(){fillSel();if(D.sel===null)return;const r=await historyFor(D.sel,300);if(!r.length)return;
+const mx=k=>Math.max(...r.map(x=>x[k])),H0=HAZ[Math.max(...r.map(x=>x.cls),0)];
+$('stat').innerHTML=`<div><b>${mx('water')}</b><span>peak water mm</span></div><div><b>${mx('gas')}</b><span>peak gas ppm</span></div><div><b>${mx('temp')}</b><span>peak temp °C</span></div><div><b style="color:${H0.c}">${r.filter(x=>x.cls).length}</b><span>alert packets</span></div><div><b>${r.length}</b><span>rows</span></div>`;
+line($('tc'),[[r.map(x=>x.water),'#38bdf8'],[r.map(x=>x.gas),'#a855f7'],[r.map(x=>x.temp),'#f97316']]);
+bars();pie();timeline()}
+function bars(){const ns=Object.values(D.N);if(!ns.length)return;const peak=n=>Math.max(1,...n.h.map(x=>Math.abs(x.water)+Math.abs(x.gas)/2+Math.abs(x.temp)*3));
+const mx=Math.max(...ns.map(peak));$('bars').innerHTML=ns.map(n=>{const h=Math.max(6,peak(n)/mx*140);return`<div class="bar"><i style="height:${h}px;--hz:${HAZ[n.cls].c}"></i><small style="color:var(--mu)">N${String(n.id).padStart(2,'0')}</small></div>`}).join('')}
+function pie(){const ns=Object.values(D.N),cnt=[0,0,0,0];ns.forEach(n=>n.h.forEach(x=>cnt[x.cls]++));const tot=cnt.reduce((a,b)=>a+b,0)||1;
+const cv=$('pie'),g=cv.getContext('2d'),r=devicePixelRatio||1;cv.width=cv.clientWidth*r;cv.height=cv.clientHeight*r;g.scale(r,r);g.clearRect(0,0,cv.clientWidth,cv.clientHeight);
+let a=-Math.PI/2;const cx=cv.clientHeight/2+4,cy=cv.clientHeight/2,rad=cv.clientHeight/2-8;
+cnt.forEach((v,i)=>{const sweep=v/tot*Math.PI*2;g.beginPath();g.moveTo(cx,cy);g.arc(cx,cy,rad,a,a+sweep);g.closePath();g.fillStyle=HAZ[i].c;g.fill();a+=sweep});
+let y=14,x=cv.clientHeight*2-30;HAZ.forEach((h,i)=>{g.fillStyle=h.c;g.fillRect(x,y,9,9);g.fillStyle='#d7e4e8';g.font='11px IBM Plex Mono';g.fillText(h.n+' '+cnt[i],x+14,y+9);y+=18})}
+function timeline(){$('tl').innerHTML=D.logs.map(e=>`<div class="ev"><b style="color:${HAZ[e.c].c}">${HAZ[e.c].n}</b>Node ${e.id} · ${e.t}<br><small style="color:var(--mu)">${e.c?HAZ[e.c].a:'Returned to normal.'}</small></div>`).join('')||'<div class="empty">No incidents logged yet</div>'}
+document.addEventListener('drishti:data',()=>{fillSel()});
+document.addEventListener('drishti:tick',()=>Object.keys(D.N).length&&load());
+document.addEventListener('drishti:seeded',load);
+addEventListener('resize',load);statusUI();seed().then(load);connectWS();
+</script></body></html>

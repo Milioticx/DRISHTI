@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DRISHTI · Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<style>.m{grid-column:span 2}.m .v{font:600 28px 'Chakra Petch';margin:2px 0;transition:color .3s}.m .v small{font-size:12px;color:var(--mu);margin-left:4px}.m canvas{width:100%;height:36px;display:block}
+.ch{grid-column:span 8}.ch canvas{width:100%;height:220px;display:block}.nd{grid-column:span 4}
+.lg{grid-column:span 7;max-height:260px;overflow:auto}.hx{grid-column:span 5}
+@media(max-width:900px){.m{grid-column:span 6}.ch,.nd,.lg,.hx{grid-column:span 12}.hero{grid-template-columns:1fr}}</style></head>
+<body><header><div class="logo">DR<i>I</i>SHTI</div><div class="sub">Disaster Recognition with Intelligent Sensing &amp; Hazard Telemetry for India · SIH26178</div>
+<nav class="nav"><a href="index.html" class="on">Overview</a><a href="nodes.html">Node Status</a><a href="analytics.html">Analytics</a></nav>
+<span class="spacer"></span><span id="st"><i class="dot"></i>OFFLINE</span>
+<button id="cx" onclick="toggleSerial(this)">⚡ Connect Gateway (USB)</button><button id="dm" onclick="dmToggle()">▶ Demo mode</button>
+<select id="sc" style="display:none" onchange="D.scen=+this.value"><option value="0">Scenario: Normal</option><option value="1">Flash flood</option><option value="2">Wildfire</option><option value="3">Gas leak</option></select></header>
+<main>
+<section class="c hero"><div><h2>Network status</h2><div class="big" id="hn">AWAITING DATA</div></div><div><p id="ha">Waiting for telemetry — from the backend, a USB-connected gateway, or Demo mode.</p><small id="hs"></small></div></section>
+<div id="metrics"></div>
+<section class="c ch"><h2>Live telemetry · selected node <span id="sn"></span></h2><canvas id="ch"></canvas></section>
+<section class="c nd"><h2>Mesh nodes <a href="nodes.html" style="font-size:11px;color:var(--hz);text-decoration:none">full status →</a></h2><div id="nl"><div class="empty">No nodes yet</div></div></section>
+<section class="c lg"><h2>Alert &amp; event log</h2><div id="lg"><div class="empty">No events</div></div></section>
+<section class="c hx"><h2>Raw UART frames (21 B)</h2><pre id="hx">waiting…</pre><small id="ct" style="color:var(--mu)"></small></section>
+</main>
+<script src="core.js"></script>
+<script>
+document.getElementById('metrics').outerHTML=METRICS.map((m,i)=>`<section class="c m" id="mc${i}"><h2>${m.l}</h2><div class="v" id="v${i}">--<small>${m.u}</small></div><canvas id="s${i}"></canvas></section>`).join('');
+function dmToggle(){D.demo?stopDemo():startDemo();$('dm').classList.toggle('on',!!D.demo);$('sc').style.display=D.demo?'':'none'}
+function statusUI(){const s=statusInfo();$('st').innerHTML=`<i class="dot ${s.live||s.be?'live':''}"></i>${s.label}`}
+document.addEventListener('drishti:status',statusUI);
+document.addEventListener('drishti:data',e=>{if(D.sel===null)D.sel=e.detail.id;render(true)});
+document.addEventListener('drishti:tick',()=>Object.keys(D.N).length&&render(false));
+function render(pulse){const ns=Object.values(D.N);if(!ns.length)return;const worst=ns.reduce((a,n)=>Math.max(a,n.cls),0),H0=HAZ[worst];
+document.documentElement.style.setProperty('--hz',H0.c);$('hn').textContent=H0.n;$('ha').textContent=H0.a;
+$('hs').textContent=`${ns.length} node(s) online · last packet ${new Date().toLocaleTimeString()} · classification by on-chip decision tree (edge AI)`;
+const n=D.N[D.sel]||ns[0],L=n.last;$('sn').textContent='· NODE '+String(n.id).padStart(2,'0');
+METRICS.forEach((m,i)=>{const el=$('v'+i);el.firstChild.textContent=L[m.k];if(pulse){el.closest('.c').classList.remove('pulse');void el.offsetWidth;el.closest('.c').classList.add('pulse')}line($('s'+i),[[n.h.map(x=>x[m.k]),H0.c]],{fill:1,lw:1.4})});
+line($('ch'),[[n.h.map(x=>x.water),'#38bdf8'],[n.h.map(x=>x.gas),'#a855f7'],[n.h.map(x=>x.temp),'#f97316']]);
+$('nl').innerHTML=ns.map(x=>{const st=Date.now()-x.t>10000,c=HAZ[x.cls];return`<div class="node ${x.id===n.id?'sel':''}" onclick="D.sel=${x.id};render(false)"><div><b>NODE ${String(x.id).padStart(2,'0')}</b><br><small style="color:var(--mu)">${x.seq==null?x.n+' pkts':'seq '+x.seq+' · lost '+x.lost+' · '+(100*x.n/(x.n+x.lost)).toFixed(0)+'% link'}</small></div><span class="pill" style="background:${st?'#6d8790':c.c}">${st?'STALE':c.n}</span></div>`}).join('');
+$('lg').innerHTML=D.logs.map(e=>`<div class="ev"><b style="color:${HAZ[e.c].c}">${HAZ[e.c].n}</b>Node ${e.id} · ${e.t}${e.from<0?' · first contact':''}<br><small style="color:var(--mu)">${e.c?HAZ[e.c].a:'Status normal.'}</small></div>`).join('')||'<div class="empty">No events</div>';
+$('hx').textContent=D.raws.join('\n');$('ct').textContent=`valid frames: ${D.good} · resyncs (bad CRC/sync): ${D.bad}`}
+addEventListener('resize',()=>render(false));statusUI();seed().then(()=>render(false));connectWS();
+</script></body></html>
