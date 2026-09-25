@@ -58,7 +58,12 @@ window.toggleSerial=toggleSerial;window.startDemo=startDemo;window.stopDemo=stop
 function line(cv,series,opt={}){if(!cv)return;const r=devicePixelRatio||1,w=cv.clientWidth||100,h=cv.clientHeight||40;cv.width=w*r;cv.height=h*r;const g=cv.getContext('2d');g.scale(r,r);g.clearRect(0,0,w,h);
 series.forEach(([d,c])=>{if(!d||d.length<2)return;const mn=Math.min(...d),mx=Math.max(...d),sp=(mx-mn)||1;g.beginPath();d.forEach((v,i)=>{const x=i/(d.length-1)*w,y=h-4-(v-mn)/sp*(h-8);i?g.lineTo(x,y):g.moveTo(x,y)});g.strokeStyle=c;g.lineWidth=opt.lw||1.6;g.stroke();
 if(opt.fill){g.lineTo(w,h);g.lineTo(0,h);g.fillStyle=c+'22';g.fill()}})}
-function gauge(cv,pct,color){if(!cv)return;const r=devicePixelRatio||1,w=cv.clientWidth||80,h=cv.clientHeight||80;cv.width=w*r;cv.height=h*r;const g=cv.getContext('2d');g.scale(r,r);g.clearRect(0,0,w,h);
+function gauge(cv,pct,color,size){if(!cv)return;const r=devicePixelRatio||1,w=size||74,h=size||74;
+// fixed logical size on purpose: reading cv.clientWidth after cv.width has already
+// been scaled by dpr causes runaway growth on high-DPI/scaled displays (each
+// redraw would measure the already-enlarged canvas and enlarge it again).
+if(cv.width!==w*r||cv.height!==h*r){cv.width=w*r;cv.height=h*r}
+const g=cv.getContext('2d');g.setTransform(r,0,0,r,0,0);g.clearRect(0,0,w,h);
 const cx=w/2,cy=h/2,rad=Math.min(w,h)/2-6,s=-Math.PI*0.75,e=Math.PI*0.75;
 g.beginPath();g.arc(cx,cy,rad,s,e);g.strokeStyle='#1e2d33';g.lineWidth=7;g.lineCap='round';g.stroke();
 g.beginPath();g.arc(cx,cy,rad,s,s+(e-s)*Math.max(0,Math.min(1,pct)));g.strokeStyle=color;g.lineWidth=7;g.lineCap='round';g.stroke()}
