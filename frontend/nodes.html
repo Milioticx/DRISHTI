@@ -30,7 +30,7 @@ function dmToggle(){D.demo?stopDemo():startDemo();$('dm').classList.toggle('on',
 function statusUI(){const s=statusInfo();$('st').innerHTML=`<i class="dot ${s.live||s.be?'live':''}"></i>${s.label}`}
 document.addEventListener('drishti:status',statusUI);
 const RANGE={water:600,surge:40,gas:400,grate:40,temp:80,vib:20};
-document.addEventListener('drishti:data',e=>renderCard(e.detail.id,true));
+document.addEventListener('drishti:data',e=>{const id=e.detail.id,n=D.N[id],now=Date.now(),changed=n._prevCls!==undefined&&n._prevCls!==n.cls,throttled=!n._lastFlash||now-n._lastFlash>1800;const doFlash=changed||throttled;if(doFlash)n._lastFlash=now;n._prevCls=n.cls;renderCard(id,doFlash)});
 document.addEventListener('drishti:tick',()=>Object.keys(D.N).forEach(id=>renderCard(+id,false)));
 document.addEventListener('drishti:seeded',()=>Object.keys(D.N).forEach(id=>renderCard(+id,false)));
 function ensureCard(id){if($('nc'+id))return;const wrap=document.createElement('div');wrap.className='nc';wrap.id='nc'+id;

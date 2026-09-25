@@ -25,7 +25,8 @@ document.getElementById('metrics').outerHTML=METRICS.map((m,i)=>`<section class=
 function dmToggle(){D.demo?stopDemo():startDemo();$('dm').classList.toggle('on',!!D.demo);$('sc').style.display=D.demo?'':'none'}
 function statusUI(){const s=statusInfo();$('st').innerHTML=`<i class="dot ${s.live||s.be?'live':''}"></i>${s.label}`}
 document.addEventListener('drishti:status',statusUI);
-document.addEventListener('drishti:data',e=>{if(D.sel===null)D.sel=e.detail.id;render(true)});
+let lastPulse=0;
+document.addEventListener('drishti:data',e=>{if(D.sel===null)D.sel=e.detail.id;const now=Date.now(),doPulse=now-lastPulse>1400;if(doPulse)lastPulse=now;render(doPulse)});
 document.addEventListener('drishti:tick',()=>Object.keys(D.N).length&&render(false));
 function render(pulse){const ns=Object.values(D.N);if(!ns.length)return;const worst=ns.reduce((a,n)=>Math.max(a,n.cls),0),H0=HAZ[worst];
 document.documentElement.style.setProperty('--hz',H0.c);$('hn').textContent=H0.n;$('ha').textContent=H0.a;
